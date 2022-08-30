@@ -17,18 +17,6 @@ def extractMessage(frame, sn):
     return frame[:msgend]
 
 
-def extractCount(frame):
-    startidx = -1
-    endidx = -1
-    for i in range(len(frame)-1):
-        if frame[i] == '/':
-            if startidx == -1:
-                startidx = i+1
-            else:
-                endidx = i
-    cnt = frame[startidx:endidx]
-    return int(cnt)
-
 
 def Main():
     count = 0

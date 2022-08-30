@@ -5,8 +5,7 @@ import random
 
 def waitRandomtime():
     x = random.randint(0, 5)
-    if x <= 1:
-        time.sleep(2)
+    time.sleep(x)
 
 
 def checkError(frame):
@@ -47,8 +46,12 @@ def Main():
             break
 
         print('Received from channel :', str(data))
+        prev = time.time()
         waitRandomtime()
-        if checkError(msg) == 0:
+        cur = time.time()
+        if(cur-prev > 2):
+            rdata="TIMEOUT"
+        elif checkError(msg) == 0:
             rdata = 'ACK'
         else:
             rdata = 'NAK'

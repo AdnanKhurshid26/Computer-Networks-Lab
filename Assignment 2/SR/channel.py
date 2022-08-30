@@ -36,6 +36,7 @@ class Channel():
         self.slidingwindow = []
         self.status = []
         self.currentcount = 0
+        
 
     def initSenders(self):
         senderSocket = socket.socket()
