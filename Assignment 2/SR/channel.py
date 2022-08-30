@@ -114,60 +114,42 @@ class Channel():
                     (self.currentcount % windowsize)+1))
                 if (self.currentcount % windowsize)+1 == self.windowsize:
                     idx = 0
-                    
 
                     while sum(self.status) != 0:
-                        
-                        
-                            for i in range(len(self.status)):
-                                if self.status[i] == -1:
-                                    idx = i
-                                    while self.status[idx] !=0 :
-                                         print()
-                                         print(15*'-')
-                                         print('Resending Frame No :', str(idx+1))
-                                         prevtime = time.time()
-                                         prevdata = self.slidingwindow[idx][0]
-                                         cnt = self.slidingwindow[idx][1]
-                                         msg = injectRandomError(prevdata)
-                                         data = msg
-                                         rconn[0].sendto(data.encode(), rconn[1])
-                                         
-                                         rdata = rconn[0].recv(1024).decode()
-                                         rdata = str(rdata)
-                                         if rdata == "NAK" or curtime-prevtime > 2:
-                                             self.status[idx] = -1
-                                         else:
-                                             self.status[idx] = 0
-                                         curtime = time.time()
-                                         roundtime = curtime-prevtime
-                                         print('DATA\t\t Sn\t\tSTATUS')
-                                         if roundtime > 2:
-                                             print(msg, cnt, "TIMEOUT")
-                                         else:
-                                             print(msg,cnt, rdata)
-                                         print('Round trip time: ', str(curtime-prevtime))
-                                         print(15*'-')
-                
-                    print('--------Block of size ',self.windowsize, 'successfully sent----------')
-                            
-                            
-                                
-                            
-                                
-                            
-                                
-                            
-                                
-                                         
-                                         
-                            			 
-                                         
 
-                           
-                            
-                        
-				
+                        for i in range(len(self.status)):
+                            if self.status[i] == -1:
+                                idx = i
+                                while self.status[idx] != 0:
+                                    print()
+                                    print(15*'-')
+                                    print('Resending Frame No :', str(idx+1))
+                                    prevtime = time.time()
+                                    prevdata = self.slidingwindow[idx][0]
+                                    cnt = self.slidingwindow[idx][1]
+                                    msg = injectRandomError(prevdata)
+                                    data = msg
+                                    rconn[0].sendto(data.encode(), rconn[1])
+
+                                    rdata = rconn[0].recv(1024).decode()
+                                    rdata = str(rdata)
+                                    if rdata == "NAK" or curtime-prevtime > 2:
+                                        self.status[idx] = -1
+                                    else:
+                                        self.status[idx] = 0
+                                    curtime = time.time()
+                                    roundtime = curtime-prevtime
+                                    print('DATA\t\t Sn\t\tSTATUS')
+                                    if roundtime > 2:
+                                        print(msg, cnt, "TIMEOUT")
+                                    else:
+                                        print(msg, cnt, rdata)
+                                    print('Round trip time: ',
+                                          str(curtime-prevtime))
+                                    print(15*'-')
+
+                    print('--------Block of size ', self.windowsize,
+                          'successfully sent----------')
                 self.currentcount += 1
             if origmsg == 'q0':
                 break
