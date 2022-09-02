@@ -1,5 +1,18 @@
+from multiprocessing.connection import wait
 import socket
 import random
+import time
+
+def injectErrorRandomly(frame):
+    if random.randint(0,99)%2 == 0: # 50% chance of error
+        pos = random.randint(0, len(frame)-1)
+        frame = frame[:pos]+'1'+frame[pos+1:]
+        return frame
+    else:
+        return frame
+
+def waitRandomTime():
+    time.sleep(random.randint(0, 2))
 
 class Channel():
     
@@ -28,14 +41,25 @@ class Channel():
     
     def Medium(self):
         while True:
+            print('-'*20)
             a = self.sendconn.recv(1024).decode()
+            if a == 'q':
+                self.recvconn.send('q'.encode())
+                print("Channel: Connection closed")
+                break
             print("received from sender: " + a)
-            self.recvconn.send(a.encode())
-            print("sent to receiver: " + a)
+            frame = injectErrorRandomly(a[:-2])
+            frame = frame + a[-2:]
+            self.recvconn.send(frame.encode())
+            print("sent to receiver: " + frame)
+            a=""
+            waitRandomTime()
             b = self.recvconn.recv(1024).decode()
             print("received from receiver: " + b)
             self.sendconn.send(b.encode())
             print("sent to sender: " + b)
+            print('-'*20)
+            b=""
         
 
 if __name__ == '__main__':
@@ -47,5 +71,5 @@ if __name__ == '__main__':
     channel.receiversock.close()
     print("done") 
         
-        
+#!/usr/bin/env python3
     

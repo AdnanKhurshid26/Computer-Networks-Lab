@@ -1,6 +1,7 @@
 import socket
 import threading
 import time
+import random
 
 
 def CountOnes(input):
@@ -9,7 +10,7 @@ def CountOnes(input):
     for i in input:
         if i == '1':
             noOfOnes += 1
-        
+
     return (int)(noOfOnes % 2 == 0)
 
 
@@ -22,37 +23,54 @@ class Receiver():
         self.ack = None
         self.Rn = 0
 
-
     def receiver(self):
-        while True:
-            data = self.mysocket.recv(1024).decode()
-            Sn = int(data[-1])
-            frame = data[:-1]
-            notCorrupt = CountOnes(frame)
+        with open('output.txt', "w") as op:
+            while True:
+                data = self.mysocket.recv(1024).decode()
+                print('-'*15)
+                if (data == 'q'):
+                    print("Receiver: Connection closed")
+                    exit()
+                print("received from channel: " + data)
+                Sn = int(data[-1])
+                frame = data[:-1]
+                notCorrupt = CountOnes(frame)
 
-            if notCorrupt:
-                if self.Rn == Sn:
-                    print("Frame received : " + frame[:-1])
-                    self.ack = '1'
-                    self.sendAck()
+                if notCorrupt:
+                    if self.Rn == Sn:
+
+                        print("Frame received : " + frame[:-1])
+                        self.ack = '1'
+                        self.sendAck()
+                        op.write(frame[:-1] + '\n')
+                        data = ""
+                        frame = ""
+                    else:
+                        # print('-'*15)
+                        print("Duplicate frame received and discarded")
+                        self.ack = '1'
+                        self.sendAck()
+                        data = ""
+                        frame = ""
                 else:
-                    print("Duplicate frame received and discarded")
-                    self.ack = '1'
+                    print("Frame received is corrupted")
+                    self.ack = '0'
                     self.sendAck()
-            else:
-                print("Frame received is corrupted")
-                self.ack = '0'
-                self.sendAck()
+                    data = ""
+                    frame = ""
 
     def sendAck(self):
         if (self.ack == '1'):
             reply = '1'+str(self.Rn)
             self.mysocket.send(reply.encode())
-            self.Rn = (self.Rn+1) % 2
+            print("sent to channel: " + reply)
+            self.Rn = 1-self.Rn
         else:
             reply = '0'+str(self.Rn)
             self.mysocket.send(reply.encode())
+            print("sent to channel: " + reply)
 
 
 receiver = Receiver()
 receiver.receiver()
+
