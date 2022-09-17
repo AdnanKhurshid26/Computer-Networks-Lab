@@ -2,63 +2,46 @@ import socket
 import time
 import random
 
-def waitRandomtime():
-	x = random.randint(0,5)
-	if x <= 1:
-		time.sleep(2)
-		
-def checkError(frame):
-	countOnes = 0
-	for ch in frame:
-		if ch == '1':
-			countOnes += 1
-	return countOnes%2
-
-def extractMessage(frame,sn):
-    msgend = len(frame) - len(sn)
-    return frame[:msgend]
-	
-
-def getCount(frame,window):
+def VRC(val):
+    odd = 0
+    for i in val:
+        if(i=='1'):
+            odd+=1
         
-        b = format(window, "b")
+    return str(odd%2)+val
 
-       
-        return  frame[-len(b):]
 
-	
-def Main():
-	print('Initiating Receiver')
-	host = '127.0.0.2'
-	port = 9090
-	
-	mySocket = socket.socket()
-	mySocket.connect((host, port))
-	
-	while True:
-		print()
-		data = mySocket.recv(1024).decode()
-		msg = str(data)
-		if not msg:
-			break
-		if msg == 'q0':
-			break
-		
-		print('Received from channel :', str(data))
-		waitRandomtime()
-		if checkError(msg) == 0:
-			rdata = 'ACK'
-		else:
-			rdata = 'NAK'
-		
-		print('Sending to channel :',str(rdata))
-		mySocket.send(rdata.encode())
-		
-		
-		
-	mySocket.close()
-	
-if __name__ == '__main__':
-	Main()
-	
-		
+reciever = socket.socket()
+port = 12352
+reciever.connect(('localhost',port))
+
+width = int(reciever.recv(1024).decode())
+time.sleep(1)
+
+while True:
+  
+    print("*"*15)
+    lst =[]
+    i=0
+    # Getting From Server
+    while i<width:
+        data = reciever.recv(1024).decode()
+        time.sleep(0.5)
+        print(f"Recived {data}")
+        msg = data.split(":")[0]
+        index = data.split(":")[1]
+        if msg == VRC(msg[1::]):
+            lst.append(f"ACK:{index}")
+        else:
+            lst.append(f"NACK:{index}")
+        i=i+1
+
+    print("\nAll frames Recived\n")
+
+    # Sending to Server
+    for msg in lst:
+        print(f"Sending {msg}")
+        reciever.sendall(msg.encode())
+        time.sleep(1)
+    print("\nAll ackn sent")
+    print("*"*15)

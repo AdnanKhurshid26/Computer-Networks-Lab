@@ -1,4 +1,4 @@
-from multiprocessing.connection import wait
+
 import socket
 import random
 import time
@@ -71,5 +71,5 @@ if __name__ == '__main__':
     channel.receiversock.close()
     print("done") 
         
-#!/usr/bin/env python3
+
     

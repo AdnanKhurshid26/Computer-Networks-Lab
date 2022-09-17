@@ -1,49 +1,101 @@
-from operator import le
 import socket
-import sys
+import time
+
+client = socket.socket()
+port = 12359
+client.connect(('localhost',port))
 
 
-def createFrame(data):
-    countOnes = 0
-    for ch in data:
-        if ch == '1':
-            countOnes += 1
-    data += str(countOnes % 2)
-    return data
+def VRC(val):
+    odd = 0
+    for i in val:
+        if(i=='1'):
+            odd+=1
+        
+    return str(odd%2)+val
 
 
-def extractMessage(frame, sn):
-    msgend = len(frame) - len(sn)
-    return frame[:msgend]
+window_size = int(input("Enter Window Size : "))
+lst = []
+flag = []
+times =[]
+cur = 0
+prev = cur
 
 
+# Sending Window size
+client.sendall(f"{window_size}".encode())
+time.sleep(1)
 
-def Main():
-    count = 0
-    sentframes = []
-    print('Initiating Sender')
-    host = '127.0.0.1'
-    port = 8080
+# Ading First frames to it
+while True:
+    msg = input('Enter Binary String : ')
+    lst.insert(cur%window_size,msg)
+    flag.insert(cur%window_size,False)
+    times.insert(cur%window_size,0)
+    cur=cur+1
+    if cur%window_size==prev:
+        break
 
-    mySocket = socket.socket()
-    mySocket.connect((host, port))
 
+# Startiung loop
+while True:
+    print("**"*15)
+    # Send all Binary Strings
+    cur_ind = cur
     while True:
-        print()
-        data = input("Enter data to send, enter q to quit: ")
-        data = createFrame(data)
-        print('Sending to channel :', str(data))
-        mySocket.send(data.encode())
-        sentframes.append(data)
-        count += 1
+        i = cur_ind%window_size
+        if flag[i]==False:
+            if lst[i] != "exit":
+                msg = f"{VRC(lst[i])}:{i}"
+            print(f"Sent frame : {msg}")
+            client.sendall(msg.encode())
+            times[i]= time.time()
+            time.sleep(1)
+        cur_ind=cur_ind+1
+        if cur_ind%window_size == cur%window_size:
+            break;
 
-        if not data:
+    print("All message Sent")
+
+    # Checking For Acknowledement
+    cur_ind = cur
+    while True:
+        i = cur_ind%window_size
+
+        if flag[i]==False:
+            ack = client.recv(1024).decode()
+            time.sleep(0.5)
+            index = int(ack.split(":")[1])
+            ackval = ack.split(":")[0]
+            triptime = time.time()-times[index]
+            if triptime < 27:
+                if ackval == "NACK":
+                    print(f"Unsuccesful transmission, sending again")
+                else :
+                    flag[index] = True
+                    print(f"Succesfully transmitted")
+            else:
+                print("Timeout Had Expired, Sending Again")
+                
+        cur_ind=cur_ind+1
+        if cur_ind%window_size == cur%window_size:
+            break;
+
+    print("All Ack Recived")
+
+    # Adding new item to sliding window
+    cur_ind = cur
+    while True:
+        i=cur%window_size
+        if flag[i]==True:
+            msg = input('Enter Binary String : ')
+            lst[i] = msg
+            flag[i]=False
+
+        cur = cur +1
+        if cur%window_size == cur_ind%window_size  :
             break
-        if data == 'q0':
-            break
-
-    mySocket.close()
 
 
-if __name__ == '__main__':
-    Main()
+client.close()

@@ -49,7 +49,7 @@ class Receiver():
                         # print('-'*15)
                         print("Duplicate frame received and discarded")
                         self.ack = '1'
-                        self.sendAck()
+                        # self.sendAck()
                         data = ""
                         frame = ""
                 else:
