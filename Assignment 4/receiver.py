@@ -3,7 +3,8 @@ import socket
 import json
 
 sock = socket.socket()
-sock.connect(('127.0.0.1', 8080))
+sock.bind(('127.0.0.12', 8080))
+sock.connect(('127.0.0.4', 8080))
 
 #receiving the number of stations from the sender
 n = int(sock.recv(1024).decode())

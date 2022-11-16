@@ -41,8 +41,7 @@ if __name__=='__main__':
     
     print(f"Channel utilization: {utilization}%")
     
-    # metric = 100*totalsent/(4*sender_count)
-    # print(f"Total number of packets successfully sent: {totalsent}")
+
     
     
 

@@ -3,10 +3,12 @@ import socket
 import json
 
 sock = socket.socket()
-sock.bind(('127.0.0.1', 8080))
+sock.bind(('127.0.0.4', 8080))
 sock.listen(1)
 
 conn, addr = sock.accept()
+
+
 
 n = int(input("Enter the number of stations:  "))
 
