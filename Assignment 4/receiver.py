@@ -6,7 +6,7 @@ sock = socket.socket()
 sock.bind(('127.0.0.12', 8080))
 sock.connect(('127.0.0.4', 8080))
 
-#receiving the number of stations from the sender
+# receiving the number of stations from the sender
 n = int(sock.recv(1024).decode())
 
 N = getNextPowerof2(n)
@@ -32,7 +32,7 @@ data = json.loads(data.decode())
 
 decoded = []
 
-#initilaizing the list of messages with n empty strings
+# initilaizing the list of messages with n empty strings
 for i in range(n):
     decoded.append("")
 
@@ -48,7 +48,7 @@ for i in range(len(data)):
         elif x == -1:
             decoded[j] += "0"
         else:
-            #if we get 0 then it means the station is silent
+            # if we get 0 then it means the station is silent
             pass
 
 

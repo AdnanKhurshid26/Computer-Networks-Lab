@@ -1,0 +1,4 @@
+name,passwd
+adnan,pass
+user2,pass2
+user3,pass3

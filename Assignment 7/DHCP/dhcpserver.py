@@ -44,7 +44,7 @@ class DHCPServer:
         server.bind(("", 37020))
         while True:
             data, addr = server.recvfrom(1024)
-            clientip, clientport = addr
+            clientip, _= addr
             
             if data.decode() == "DHCPREQ":
                 print("DHCPREQ received from " + clientip)
